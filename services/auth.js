@@ -34,7 +34,7 @@ class UserAuth {
         matricNumber === "" ||
         matricNumber === undefined ||
         matricNumber === null ||
-        matricNumber.length > matricNumberLength
+        matricNumber.length > matricNumberLength || matricNumber.length !== matricNumberLength
       ) {
         return util.sendJson(res, util.Error("Invalid Matric Number Provided"), 400);
       }
@@ -134,9 +134,9 @@ class UserAuth {
         plateNumber === "" ||
         plateNumber === undefined ||
         plateNumber === null ||
-        plateNumber.length > plateNumberLength
+        plateNumber.length > plateNumberLength || plateNumber.length !== plateNumberLength
       ) {
-        return util.sendJson(res, util.Error("Invalid Matric Number Provided"), 400);
+        return util.sendJson(res, util.Error("Invalid Platenumber Provided"), 400);
       }
 
       if (util.validatePhonenumber(phoneNumber) === false) {

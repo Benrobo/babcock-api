@@ -1,3 +1,4 @@
+require("dotenv").config()
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
@@ -8,8 +9,8 @@ const app = express();
 
 // main middlewares
 app.use(cors())
-app.use(bodyParser.json({extended: true}))
-app.use(bodyParser.urlencoded());
+app.use(bodyParser.json({limit: "50mb"}))
+app.use(bodyParser.urlencoded({ extended: false, parameterLimit: 50000 }));
 
 // routes middleware
 
@@ -27,6 +28,10 @@ app.get("/", (req, res)=>{
         return res.status(200).json(sendData)
     })
 })
+
+
+app.use("/api/auth/", require("./routes/logIn"))
+app.use("/api/auth/", require("./routes/register"))
 
 
 // listen on a htp port to run and start the server

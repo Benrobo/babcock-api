@@ -12,6 +12,7 @@ CREATE TABLE "usersTable"(
     "usersIdentifier" TEXT NOT NULL,
     "profilePics" TEXT NOT NULL,
     "userRole" TEXT,
+    "phoneNumber" TEXT NOT NULL,
     "refreshToken" TEXT NOT NULL,
     "createdAt" TEXT NOT NULL
 );

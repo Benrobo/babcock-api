@@ -1,9 +1,11 @@
+require("dotenv").config()
 const {v4: uuid} = require("uuid");
 const moment = require("moment")
 const jwt = require("jsonwebtoken")
+const bcrypt = require("bcryptjs")
 
-const accessSecret = process.env.JWT_REFRESH_SECRET
-const refreshSecret = process.env.JWT_Acess_SECRET
+const accessSecret = process.env.JWT_ACCESS_SECRET
+const refreshSecret = process.env.JWT_REFRESH_SECRET
 
 class Util{
 
@@ -79,15 +81,59 @@ class Util{
         return true;
     }
 
+    validateMatricNumber(matricNumber){
+        let length = 6;
+        if (!matricNumber || matricNumber === undefined || matricNumber === "") {
+            return false
+        }
+        // the matric number goes like this
+        // 18/0032
+        let check = matricNumber.trim().split("/").join("");
+
+        if(check.length > length || check.length !== length){
+            return false
+        }
+        return true;
+    }
+
+    validatePlaneNumber(plateNumber){
+        let length = 6;
+        if (!plateNumber || plateNumber === undefined || plateNumber === "") {
+            return false
+        }
+        // the matric number goes like this
+        // 18/0032
+        let check = plateNumber.trim().split("").includes("-") === true ? plateNumber.trim().split("-").join("") : plateNumber.trim().split("").join("");
+
+        if(check.length > length || check.length !== length){
+            return false
+        }
+        return true;
+    }
+
     randomImages(seeds){
         return `https://avatars.dicebear.com/api/initials/${seeds}.svg`
     }
 
-    sendJson(res, payload={msg: "payload is empty"},code){
+    sendJson(res, payload={msg: "payload is empty"},code=401){
         if(!res){
             return this.Error("Rresponse object is required")
         }
         return res.status(code).json(payload)
+    }
+
+    genHash(string, salt=10){
+        if(!string || !salt){
+            return this.Error("Password string or salt is required")
+        }
+        return bcrypt.hashSync(string, salt)
+    }
+
+    compareHash(string, hash){
+        if(!string|| !hash || string === "" || hash === ""){
+            return false
+        }
+        return bcrypt.compareSync(string, hash)
     }
 }
 

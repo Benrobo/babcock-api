@@ -1,25 +1,27 @@
 const express = require("express");
 const router = express.Router();
 
-const { checkAuth } = require("../middlewares/auth");
 const auth = require("../services/auth");
 const util = require("../util");
 
-router.post("/login", checkAuth, async (req, res) => {
+router.post("/login", async (req, res) => {
   let data = req.body;
-  // validate data
-  if (!data || data.role === undefined || data.role === "") {
-    return util.sendJson(res, util.Error("A VALID ROLE IS REQUIRED"), 400);
-  } else {
-    let role = data.role;
-    if (role.toLowerCase() === "students") {
-      return await auth.registerStudents(data, res);
-    } else if (role.toLowerCase() === "driver") {
-      return await auth.registerDrivers(data, res);
-    } else {
-      return util.sendJson(res, util.Error("Invalid role type provided."), 400);
-    }
+  
+  if(Object.entries(data).length === 0){
+      return util.sendJson(util.Error("user fields is required, instead got an empty fields"))
   }
+  if(data.role === ""){
+    return util.sendJson(util.Error("user role is required"))
+  }
+  if(data.role === "student"){
+    return await auth.loginStudents(data, res)
+  }
+
+  if(data.role === "driver"){
+    return await auth.loginDrivers(data, res)
+  }
+
+  return util.sendJson(res, util.Error("invalid inputs fields"), 400)
 });
 
 module.exports = router;

@@ -1,0 +1,7 @@
+POST http://localhost:5000/api/users
+content-type: application/json
+
+{
+    "userId": "b8e6f313-0466-4b36-8c05-e678b9873b60 ",
+    "role": "student"
+}

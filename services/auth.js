@@ -353,7 +353,7 @@ class UserAuth {
 
           // send the tokens to client to be stored in browser
 
-          return util.sendJson(res, sendData);
+          return util.sendJson(res, sendData, 200);
         });
       });
     }

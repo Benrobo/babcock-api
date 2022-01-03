@@ -4,7 +4,7 @@ const util = require("../util/index");
 
 module.exports = class Profile {
   async usersProfile({ role, userId }, res) {
-    if (role === "" || userId === undefined) {
+    if (role === "" || userId === undefined || role === undefined) {
       return util.sendJson(
         res,
         util.Error("empty fields, required role and userId."),

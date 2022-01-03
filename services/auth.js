@@ -52,75 +52,87 @@ class UserAuth {
       // check if user with that email already exist
 
       const queryCheck = `SELECT * FROM "usersTable" WHERE mail=$1 OR "phoneNumber"=$2 OR "usersIdentifier"=$3`;
-      db.query(queryCheck, [email, phoneNumber,studentIdentity], (err, results) => {
-        if (err) {
-          return util.sendJson(
-            res,
-            util.Error("Something went wrong registering users"),
-            400
-          );
-        }
-        if (results.rowCount > 0) {
-          return util.sendJson(
-            res,
-            util.Error("User with that email or phonenumber or matricNumber already exist"),
-            403
-          );
-        }
+      db.query(
+        queryCheck,
+        [email, phoneNumber, studentIdentity],
+        (err, results) => {
+          if (err) {
+            // console.log(err.error);
+            return util.sendJson(
+              res,
+              util.Error("Something went wrong registering users: " + err),
+              400
+            );
+          }
+          if (results.rowCount > 0) {
+            return util.sendJson(
+              res,
+              util.Error(
+                "User with that email or phonenumber or matricNumber already exist"
+              ),
+              403
+            );
+          }
 
-        // insert into database
-        const userId = util.genId();
-        const profilePics = util.randomImages(name);
-        const date = util.getRelativeTime("hour");
-        const newHash = util.genHash(password);
+          // insert into database
+          const userId = util.genId();
+          const profilePics = util.randomImages(name);
+          const date = util.getRelativeTime("hour");
+          const newHash = util.genHash(password);
 
-        // at initial state, refreshToken would be empty string ""
-        // when user logged In , it gonna be replace by the refreshToken of the user
+          // at initial state, refreshToken would be empty string ""
+          // when user logged In , it gonna be replace by the refreshToken of the user
 
-        const refreshToken = "";
+          const refreshToken = "";
 
-        const query = `INSERT INTO "usersTable"(id, name, mail, password, "usersIdentifier", "profilePics","userRole","phoneNumber","refreshToken","createdAt") VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`;
-        try {
-          db.query(
-            query,
-            [
-              userId,
-              name,
-              email,
-              newHash,
-              studentIdentity,
-              profilePics,
-              role,
-              phoneNumber.trim(),
-              refreshToken,
-              date,
-            ],
-            (error, result) => {
-              if (error) {
+          const query = `INSERT INTO "usersTable"(id, name, mail, password, "usersIdentifier", "profilePics","userRole","phoneNumber","refreshToken","createdAt") VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`;
+          try {
+            db.query(
+              query,
+              [
+                userId,
+                name,
+                email,
+                newHash,
+                studentIdentity,
+                profilePics,
+                role,
+                phoneNumber.trim(),
+                refreshToken,
+                date,
+              ],
+              (error, result) => {
+                if (error) {
+                  console.log(err);
+                  return util.sendJson(
+                    res,
+                    util.Error(
+                      "Something went wrong registering students: " + error
+                    ),
+                    400
+                  );
+                }
                 return util.sendJson(
                   res,
-                  util.Error("Something went wrong registering users"),
-                  400
+                  {
+                    msg: "User successfully registered",
+                    data: result.rows[0],
+                  },
+                  200
                 );
               }
-              return util.sendJson(
-                res,
-                {
-                  msg: "User successfully registered",
-                  data: result.rows[0],
-                },
-                200
-              );
-            }
-          );
-        } catch (err) {
-          return util.sendJson(
-            res,
-            util.Error("Server Error: Something went wrong registering users"),
-            500
-          );
+            );
+          } catch (err) {
+            return util.sendJson(
+              res,
+              util.Error(
+                "Server Error: Something went wrong registering users: " + err
+              ),
+              500
+            );
+          }
         }
-      });
+      );
     }
   }
 
@@ -192,7 +204,9 @@ class UserAuth {
           if (results.rowCount > 0) {
             return util.sendJson(
               res,
-              util.Error("User with that email or phonenumber or platenumber already exist"),
+              util.Error(
+                "User with that email or phonenumber or platenumber already exist"
+              ),
               403
             );
           }

@@ -1,4 +1,4 @@
-CREATE DATABASE babcock-uber;
+CREATE DATABASE "babcock-uber";
 
 
 -- organization table

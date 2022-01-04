@@ -297,8 +297,8 @@ class UserAuth {
       // check if user matric number is correct is available in db
       const matric = matricNumber.split("/").join("");
       const newMatric = `${role}-${matric}`;
-      const queryCheck = `SELECT * FROM "usersTable" WHERE "usersIdentifier"=$1`;
-      db.query(queryCheck, [newMatric], (err, results) => {
+      const queryCheck = `SELECT * FROM "usersTable" WHERE "usersIdentifier"=$1 AND "userRole"=$2`;
+      db.query(queryCheck, [newMatric, role], (err, results) => {
         if (err) {
           console.log(err);
           return util.sendJson(
@@ -373,17 +373,23 @@ class UserAuth {
           400
         );
       }
-      if (data.mail === "" || data.mail === undefined) {
+
+      if (
+        data.password === "" ||
+        data.password === undefined ||
+        data.phoneNumber === "" ||
+        data.phoneNumber === undefined
+      ) {
         return util.sendJson(
           res,
           util.Error("user data is required: email or password is missing"),
           400
         );
       }
-      const { mail, role, password } = data;
+      const { role, phoneNumber, password } = data;
       // check if user matric number is correct is available in db
-      const queryCheck = `SELECT * FROM "usersTable" WHERE "mail"=$1 OR "userRole"=$2`;
-      db.query(queryCheck, [mail, role], (err, results) => {
+      const queryCheck = `SELECT * FROM "usersTable" WHERE "phoneNumber"=$1 AND "userRole"=$2`;
+      db.query(queryCheck, [phoneNumber, role], (err, results) => {
         if (err) {
           return util.sendJson(
             res,
@@ -395,7 +401,7 @@ class UserAuth {
         if (results.rowCount === 0) {
           return util.sendJson(
             res,
-            util.Error("user with that email doesnt exist"),
+            util.Error("user with that phonenumber doesnt exist"),
             404
           );
         }
@@ -410,7 +416,7 @@ class UserAuth {
         // generate refreshTokens and accessTokens
         const userPayload = {
           id: results.rows[0].id,
-          matricNumber: results.rows[0].usersIdentifier,
+          identity: results.rows[0].usersIdentifier,
           mail: results.rows[0].mail,
           role: results.rows[0].userRole,
         };
@@ -418,8 +424,8 @@ class UserAuth {
         const refreshToken = util.genRefreshToken(userPayload);
         const accessToken = util.genAccessToken(userPayload);
 
-        const query = `UPDATE "usersTable" SET "refreshToken"=$1 WHERE mail=$2`;
-        db.query(query, [refreshToken, mail], (err, data2) => {
+        const query = `UPDATE "usersTable" SET "refreshToken"=$1 WHERE "phoneNumber"=$2`;
+        db.query(query, [refreshToken, phoneNumber], (err, data2) => {
           if (err) {
             return util.sendJson(
               res,

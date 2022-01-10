@@ -4,8 +4,25 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const fs = require("fs");
 const path = require("path");
+const http = require("http");
+const socketio = require("socket.io");
+
+const { test } = require("./services/soketAPI");
 
 const app = express();
+
+const server = http.createServer(app);
+
+const io = socketio(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
+});
+
+// Handle all socket connection here
+
+test(io);
 
 // main middlewares
 app.use(cors());
@@ -36,4 +53,4 @@ app.use("/api/all", require("./routes/allUsers"));
 
 // listen on a htp port to run and start the server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT);
+server.listen(PORT);

@@ -7,7 +7,7 @@ const path = require("path");
 const http = require("http");
 const socketio = require("socket.io");
 
-const { test } = require("./services/soketAPI");
+const { Socket } = require("./services/soketAPI");
 
 const app = express();
 
@@ -21,8 +21,9 @@ const io = socketio(server, {
 });
 
 // Handle all socket connection here
+// init socket connection
 
-test(io);
+new Socket(io).mainSocketConnection();
 
 // main middlewares
 app.use(cors());

@@ -84,8 +84,8 @@ class UserAuth {
           // when user logged In , it gonna be replace by the refreshToken of the user
 
           const refreshToken = "";
-
-          const query = `INSERT INTO "usersTable"(id, name, mail, password, "usersIdentifier", "profilePics","userRole","phoneNumber","refreshToken","createdAt") VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`;
+          const status = "off";
+          const query = `INSERT INTO "usersTable"(id, name, mail, password, "usersIdentifier", "profilePics","userRole","status","phoneNumber","refreshToken","createdAt") VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`;
           try {
             db.query(
               query,
@@ -97,6 +97,7 @@ class UserAuth {
                 studentIdentity,
                 profilePics,
                 role,
+                status,
                 phoneNumber.trim(),
                 refreshToken,
                 date,
@@ -219,10 +220,10 @@ class UserAuth {
 
           // at initial state, refreshToken would be empty string ""
           // when user logged In , it gonna be replace by the refreshToken of the user
-
+          const status = "off";
           const refreshToken = "";
 
-          const query = `INSERT INTO "usersTable"(id, name, mail, password, "usersIdentifier", "profilePics","userRole","phoneNumber","refreshToken","createdAt") VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`;
+          const query = `INSERT INTO "usersTable"(id, name, mail, password, "usersIdentifier", "profilePics","userRole","status","phoneNumber","refreshToken","createdAt") VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`;
           try {
             db.query(
               query,
@@ -234,6 +235,7 @@ class UserAuth {
                 driverIdentity,
                 profilePics,
                 role,
+                status,
                 phoneNumber.trim(),
                 refreshToken,
                 date,
@@ -326,9 +328,10 @@ class UserAuth {
         // generate refreshTokens and accessTokens
         const userPayload = {
           id: results.rows[0].id,
-          matricNumber: results.rows[0].usersIdentifier,
+          identity: results.rows[0].usersIdentifier,
           mail: results.rows[0].mail,
           role: results.rows[0].userRole,
+          status: results.rows[0].status,
         };
         const refreshToken = util.genRefreshToken(userPayload);
         const accessToken = util.genAccessToken(userPayload);
@@ -419,14 +422,16 @@ class UserAuth {
           identity: results.rows[0].usersIdentifier,
           mail: results.rows[0].mail,
           role: results.rows[0].userRole,
+          status: results.rows[0].status,
         };
 
         const refreshToken = util.genRefreshToken(userPayload);
         const accessToken = util.genAccessToken(userPayload);
-
-        const query = `UPDATE "usersTable" SET "refreshToken"=$1 WHERE "phoneNumber"=$2`;
-        db.query(query, [refreshToken, phoneNumber], (err, data2) => {
+        const status = "on";
+        const query = `UPDATE "usersTable" SET "refreshToken"=$1 , "status"=$2 WHERE "phoneNumber"=$3`;
+        db.query(query, [refreshToken, status, phoneNumber], (err, data2) => {
           if (err) {
+            console.log(err);
             return util.sendJson(
               res,
               util.Error(

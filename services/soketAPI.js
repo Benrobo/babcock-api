@@ -20,13 +20,13 @@ class Socket {
       // emit msg
 
       //   check for student_ride_request
-      socket.on("student_ride_request", (data) => {
-        const { from, to, userId, role } = data;
+      socket.on("student_ride_request", (clientData) => {
+        const { from, to, userId, role } = clientData;
 
         // check if the userId and role match in database
         let sql = `SELECT * FROM "usersTable" WHERE id=$1 AND "userRole"=$2`;
         try {
-          db.query(sql, [userId, role], (err, results) => {
+          db.query(sql, [userId, role], (err, studentRes) => {
             if (err) {
               // emit error
               console.log(err);
@@ -34,7 +34,7 @@ class Socket {
             }
 
             // check if user exist
-            if (results.rowCount === 0) {
+            if (studentRes.rowCount === 0) {
               return this.error(
                 io,
                 "ride request failed, user with thast id doesnt exist"
@@ -52,17 +52,44 @@ class Socket {
               }
 
               const rand = Math.floor(Math.random() * results.rows.length);
-              let data = results.rows[rand];
+              let driverInfo = results.rows[rand];
+              const randId = util.genId();
 
-              console.log(rand, data);
+              // emit this event to drivers
+              socket.broadcast.emit("users-request", {
+                clientData,
+                user: {
+                  img: studentRes.rows[0].profilePics,
+                  role: studentRes.rows[0].userRole,
+                  id: studentRes.rows[0].id,
+                },
+              });
 
-              io.emit("available-driver", data);
+              // insert driver and suser id into the trips table
+              return;
+              const sql3 = `INSERT INTO trips("id","studentId", "driverId","from","to") VALUES($1,$2,$3,$4,$5)`;
+              db.query(
+                sql3,
+                [randId, userId, driverInfo.id, from, to],
+                (err) => {
+                  if (err) {
+                    // emit error
+                    console.log(err);
+                    return this.error(io, err.message);
+                  }
+                  console.log("message recieved");
+                  socket.broadcast.emit("available-driver", data);
+                }
+              );
             });
           });
         } catch (err) {
           console.log(err);
         }
       });
+
+      // check for driver request
+      // socket.on("driver")
     });
   }
 }

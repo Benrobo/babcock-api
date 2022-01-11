@@ -21,11 +21,11 @@ CREATE TABLE "usersTable"(
 
 CREATE TABLE "trips"(
     id TEXT UNIQUE NOT NULL PRIMARY KEY,
-    "userId" TEXT NOT NULL,
+    "studentId" TEXT NOT NULL,
+    "driverId" TEXT NOT NULL,
     "from" TEXT NOT NULL UNIQUE,
     "to" TEXT NOT NULL,
-    "userRole" TEXT NOT NULL,
-    "createdAt" TEXT NOT NULL
+    "createdAt" TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 -- 

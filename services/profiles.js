@@ -15,7 +15,6 @@ module.exports = class Profile {
     // check if userId is available in database
     // const sql1 = `SELECT name, mail, "profilePics", "phoneNumber" FROM "usersTable" WHERE id=$1 AND "userRole"=$2 INNER JOIN trips ON "usersTable".id=trips."userId"`;
     const sql = `SELECT "name", "mail", "usersIdentifier", "profilePics", "phoneNumber" from "usersTable" WHERE id=$1 AND "userRole"=$2`;
-
     try {
       db.query(sql, [userId.trim(), role.trim()], (err, results) => {
         if (err) {

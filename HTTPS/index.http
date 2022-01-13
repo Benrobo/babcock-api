@@ -1,0 +1,14 @@
+# get all users
+
+GET http://localhost:5000/api/all/users
+content-type: application/json
+
+
+# get users by id and role
+POST http://localhost:5000/api/users
+content-type: application/json
+
+{
+    "userId": "e047bb1b-b660-41ec-b37b-b8f7d696490c",
+    "role": "driver"
+}

@@ -1,3 +1,0 @@
-
-GET http://localhost:5000/api/all/users
-content-type: application/json

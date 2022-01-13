@@ -1,148 +1,152 @@
-require("dotenv").config()
-const {v4: uuid} = require("uuid");
-const moment = require("moment")
-const jwt = require("jsonwebtoken")
-const bcrypt = require("bcryptjs")
+require("dotenv").config();
+const { v4: uuid } = require("uuid");
+const moment = require("moment");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 
-const accessSecret = process.env.JWT_ACCESS_SECRET
-const refreshSecret = process.env.JWT_REFRESH_SECRET
+const accessSecret = process.env.JWT_ACCESS_SECRET;
+const refreshSecret = process.env.JWT_REFRESH_SECRET;
 
-class Util{
+class Util {
+  Error(msg) {
+    return new Error(msg);
+  }
 
-    Error(msg){
-        return new Error(msg)
+  genId() {
+    const id = uuid();
+    return id;
+  }
+
+  getRelativeTime(format) {
+    let validFormats = ["day", "hour"];
+    if (format === undefined) {
+      return moment().format();
+    }
+    if (typeof format === Number) {
+      return this.Error("Type Error: invalid date format");
+    }
+    if (!validFormats.includes(format)) {
+      return moment().startOf(validFormats[1]).fromNow();
     }
 
-    genId(){
-        const id = uuid();
-        return id; 
+    return moment().startOf(format).fromNow();
+  }
+
+  genAccessToken(payload) {
+    if (payload === "" || payload === undefined) {
+      return this.Error("Access token requires a payload field but got none");
     }
 
-    getRelativeTime(format){
-        let validFormats = ["day", "hour"]
-        if(format === undefined){
-            return moment().format()
-        }
-        if(typeof format === Number){
-            return this.Error("Type Error: invalid date format")
-        }
-        if(!validFormats.includes(format)){
-            return moment().startOf(validFormats[1]).fromNow()
-        }
-        
-        return moment().startOf(format).fromNow()
+    return jwt.sign(payload, accessSecret, { expiresIn: "7min" });
+  }
+
+  genRefreshToken(payload) {
+    if (payload === "" || payload === undefined) {
+      return this.Error("Refresh token requires a payload field but got none");
     }
+    return jwt.sign(payload, refreshSecret, { expiresIn: "1yr" });
+  }
 
-    genAccessToken(payload){
-        if(payload === "" || payload === undefined){
-            return this.Error("Access token requires a payload field but got none")
-        }
+  validatePhonenumber(phoneNumber) {
+    if (!phoneNumber) return false;
+    const regexp =
+      /^\+{0,2}([\-\. ])?(\(?\d{0,3}\))?([\-\. ])?\(?\d{0,3}\)?([\-\. ])?\d{3}([\-\. ])?\d{4}/;
+    return regexp.test(phoneNumber);
+  }
 
-        return jwt.sign(payload, accessSecret, { expiresIn: "7min"})
+  validateEmail(email) {
+    const tester =
+      /^[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~](\.?[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~])*@[a-zA-Z0-9](-*\.?[a-zA-Z0-9])*\.[a-zA-Z](-?[a-zA-Z0-9])+$/;
+
+    if (!email) return false;
+
+    let emailParts = email.split("@");
+
+    if (emailParts.length !== 2) return false;
+
+    let account = emailParts[0];
+    let address = emailParts[1];
+
+    if (account.length > 64) return false;
+    else if (address.length > 255) return false;
+
+    let domainParts = address.split(".");
+    if (
+      domainParts.some(function (part) {
+        return part.length > 63;
+      })
+    )
+      return false;
+
+    if (!tester.test(email)) return false;
+
+    return true;
+  }
+
+  validateMatricNumber(matricNumber) {
+    let length = 6;
+    if (!matricNumber || matricNumber === undefined || matricNumber === "") {
+      return false;
     }
+    // the matric number goes like this
+    // 18/0032
+    let check = matricNumber.trim().split("/").join("");
 
-    genRefreshToken(payload){
-        if(payload === "" || payload === undefined){
-            return this.Error("Refresh token requires a payload field but got none")
-        }
-        return jwt.sign(payload, refreshSecret, { expiresIn: "1yr"})
+    if (check.length > length || check.length !== length) {
+      return false;
     }
+    return true;
+  }
 
-    validatePhonenumber(phoneNumber){
-        if (!phoneNumber) return false;
-        const regexp = /^\+{0,2}([\-\. ])?(\(?\d{0,3}\))?([\-\. ])?\(?\d{0,3}\)?([\-\. ])?\d{3}([\-\. ])?\d{4}/;
-        return regexp.test(phoneNumber);
+  validatePlaneNumber(plateNumber) {
+    let length = 6;
+    if (!plateNumber || plateNumber === undefined || plateNumber === "") {
+      return false;
     }
+    // the matric number goes like this
+    // 18/0032
+    let check =
+      plateNumber.trim().split("").includes("-") === true
+        ? plateNumber.trim().split("-").join("")
+        : plateNumber.trim().split("").join("");
 
-    validateEmail(email){
-        const tester = /^[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~](\.?[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~])*@[a-zA-Z0-9](-*\.?[a-zA-Z0-9])*\.[a-zA-Z](-?[a-zA-Z0-9])+$/;
-
-        if (!email) return false;
-
-        let emailParts = email.split('@');
-
-        if(emailParts.length !== 2) return false
-
-        let account = emailParts[0];
-        let address = emailParts[1];
-
-        if(account.length > 64) return false
-
-        else if(address.length > 255) return false
-
-        let domainParts = address.split('.');
-        if (domainParts.some(function (part) {
-            return part.length > 63;
-        })) return false;
-
-
-        if (!tester.test(email)) return false;
-
-        return true;
+    if (check.length > length || check.length !== length) {
+      return false;
     }
+    return true;
+  }
 
-    validateMatricNumber(matricNumber){
-        let length = 6;
-        if (!matricNumber || matricNumber === undefined || matricNumber === "") {
-            return false
-        }
-        // the matric number goes like this
-        // 18/0032
-        let check = matricNumber.trim().split("/").join("");
+  randomImages(seeds) {
+    return `https://avatars.dicebear.com/api/initials/${seeds}.svg`;
+  }
 
-        if(check.length > length || check.length !== length){
-            return false
-        }
-        return true;
+  sendJson(res, payload = { msg: "payload is empty" }, code = 401) {
+    if (!res) {
+      return this.Error("Rresponse object is required");
     }
+    return res.status(code).json(payload);
+  }
 
-    validatePlaneNumber(plateNumber){
-        let length = 6;
-        if (!plateNumber || plateNumber === undefined || plateNumber === "") {
-            return false
-        }
-        // the matric number goes like this
-        // 18/0032
-        let check = plateNumber.trim().split("").includes("-") === true ? plateNumber.trim().split("-").join("") : plateNumber.trim().split("").join("");
-
-        if(check.length > length || check.length !== length){
-            return false
-        }
-        return true;
+  genHash(string, salt = 10) {
+    if (!string || !salt) {
+      return this.Error("Password string or salt is required");
     }
+    return bcrypt.hashSync(string, salt);
+  }
 
-    randomImages(seeds){
-        return `https://avatars.dicebear.com/api/initials/${seeds}.svg`
+  compareHash(string, hash) {
+    if (!string || !hash || string === "" || hash === "") {
+      return false;
     }
-
-    sendJson(res, payload={msg: "payload is empty"},code=401){
-        if(!res){
-            return this.Error("Rresponse object is required")
-        }
-        return res.status(code).json(payload)
-    }
-
-    genHash(string, salt=10){
-        if(!string || !salt){
-            return this.Error("Password string or salt is required")
-        }
-        return bcrypt.hashSync(string, salt)
-    }
-
-    compareHash(string, hash){
-        if(!string|| !hash || string === "" || hash === ""){
-            return false
-        }
-        return bcrypt.compareSync(string, hash)
-    }
+    return bcrypt.compareSync(string, hash);
+  }
 }
 
-class Error{
-    constructor(msg){
-        this.msg = msg;
-        this.name = "Error"
-    }
+class Error {
+  constructor(msg) {
+    this.msg = msg;
+    this.name = "Error";
+  }
 }
 
-
-module.exports = new Util()
+module.exports = new Util();

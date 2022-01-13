@@ -25,6 +25,20 @@ class Socket {
         io.to(data.id).emit("ride-cancel", data);
       });
 
+      socket.on("ride-accepted", async (data) => {
+        if (data) {
+          const { studentSocketId, driverId, driverRole } = data;
+
+          io.to(studentSocketId).emit("ride-accepted", {
+            driverId,
+            driverRole,
+          });
+        }
+        io.to(studentSocketId).emit("ride-accepted", {
+          error: "drivers data not found in 'ride-accepted socket'",
+        });
+      });
+
       socket.on("student_ride_request", (clientData) => {
         const { from, to, userId, role } = clientData;
 

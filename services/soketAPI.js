@@ -25,16 +25,43 @@ class Socket {
         io.to(data.id).emit("ride-cancel", data);
       });
 
-      socket.on("ride-accepted", async (data) => {
+      socket.on("ride-accepted", (data) => {
         if (data) {
-          const { studentSocketId, driverId, driverRole } = data;
+          const { studentSocketId, driverSocketId, driverId, driverRole } =
+            data;
 
-          io.to(studentSocketId).emit("ride-accepted", {
-            driverId,
-            driverRole,
+          // get driver details from db
+          // console.log(data);
+          // return;
+
+          const sql = `SELECT * FROM "usersTable" WHERE id=$1 AND "userRole"=$2`;
+          db.query(sql, [driverId, driverRole], (err, res) => {
+            if (err) {
+              // emit error
+              console.log(err);
+              return io.to(studentSocketId).emit("ride-accepted", {
+                error: err,
+              });
+            }
+
+            if (res.rowCount === 0) {
+              io.to(studentSocketId).emit("ride-accepted", {
+                msg: "No driver found",
+              });
+            }
+
+            const data = {
+              img: res.rows[0].profilePics,
+              name: res.rows[0].name,
+              phoneNumber: res.rows[0].phoneNumber,
+              driverSocketId,
+            };
+
+            io.to(studentSocketId).emit("ride-accepted", data);
           });
+          return;
         }
-        io.to(studentSocketId).emit("ride-accepted", {
+        io.to(data.studentSocketId).emit("ride-accepted", {
           error: "drivers data not found in 'ride-accepted socket'",
         });
       });

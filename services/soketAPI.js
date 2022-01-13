@@ -17,9 +17,14 @@ class Socket {
   mainSocketConnection() {
     let io = this.io;
     io.on("connection", (socket) => {
-      // emit msg
+      socket.on("ride-cancel", (data) => {
+        io.to(data.id).emit("ride-cancel", data);
+      });
 
-      //   check for student_ride_request
+      socket.on("no-respond", (data) => {
+        io.to(data.id).emit("ride-cancel", data);
+      });
+
       socket.on("student_ride_request", (clientData) => {
         const { from, to, userId, role } = clientData;
 

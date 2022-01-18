@@ -93,7 +93,6 @@ module.exports = class Profile {
     }
 
     const { userId, role, profileDetails } = data;
-
     const userIdentity = profileDetails.identity.includes("-")
       ? profileDetails.identity.trim()
       : `${role}-${profileDetails.identity.trim()}`;

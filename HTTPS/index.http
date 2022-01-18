@@ -12,3 +12,15 @@ content-type: application/json
     "userId": "e047bb1b-b660-41ec-b37b-b8f7d696490c",
     "role": "driver"
 }
+
+# edit user profile
+POST http://localhost:5000/api/users/editProfile
+content-type: application/json
+
+{
+    "userId": "e047bb1b-b660-41ec-b37b-b8f7d696490c",
+    "role": "driver",
+    "profileDetails": {
+        "name" : "benrobo"
+    }
+}

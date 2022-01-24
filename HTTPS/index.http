@@ -3,6 +3,10 @@
 GET http://localhost:5000/api/all/users
 content-type: application/json
 
+# get users trips
+POST http://localhost:5000/api/users/usersTrips
+content-type: application/json
+
 
 # get users by id and role
 POST http://localhost:5000/api/users

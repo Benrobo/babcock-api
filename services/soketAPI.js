@@ -27,11 +27,16 @@ class Socket {
 
       socket.on("ride-accepted", (data) => {
         if (data) {
-          const { studentSocketId, driverSocketId, driverId, driverRole } =
-            data;
+          const {
+            studentSocketId,
+            driverSocketId,
+            studentId,
+            driverId,
+            driverRole,
+          } = data;
 
           // get driver details from db
-          // console.log(data);
+          console.log(data);
           // return;
 
           const sql = `SELECT * FROM "usersTable" WHERE id=$1 AND "userRole"=$2`;
@@ -50,14 +55,30 @@ class Socket {
               });
             }
 
-            const data = {
+            // insert students and driver id to trips table
+            const type = "accept";
+            let rid = util.genId();
+            const sql2 = `INSERT INTO trips(id,"studentId","driverId","type") VALUES($1,$2,$3,$4)`;
+            db.query(sql2, [rid, studentId, driverId, type], (err) => {
+              if (err) {
+                // emit error
+                console.log(err);
+                return io.to(studentSocketId).emit("ride-accepted", {
+                  error: err,
+                });
+              }
+            });
+
+            const sendData = {
               img: res.rows[0].profilePics,
               name: res.rows[0].name,
               phoneNumber: res.rows[0].phoneNumber,
               driverSocketId,
+              driverId,
+              driverRole,
             };
 
-            io.to(studentSocketId).emit("ride-accepted", data);
+            io.to(studentSocketId).emit("ride-accepted", sendData);
           });
           return;
         }
@@ -110,32 +131,12 @@ class Socket {
                   id: studentRes.rows[0].id,
                 },
               });
-
-              // insert driver and suser id into the trips table
-              return;
-              const sql3 = `INSERT INTO trips("id","studentId", "driverId","from","to") VALUES($1,$2,$3,$4,$5)`;
-              db.query(
-                sql3,
-                [randId, userId, driverInfo.id, from, to],
-                (err) => {
-                  if (err) {
-                    // emit error
-                    console.log(err);
-                    return this.error(io, err.message);
-                  }
-                  console.log("message recieved");
-                  socket.broadcast.emit("available-driver", data);
-                }
-              );
             });
           });
         } catch (err) {
           console.log(err);
         }
       });
-
-      // check for driver request
-      // socket.on("driver")
     });
   }
 }

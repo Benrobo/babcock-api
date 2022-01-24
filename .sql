@@ -23,8 +23,7 @@ CREATE TABLE "trips"(
     id TEXT UNIQUE NOT NULL PRIMARY KEY,
     "studentId" TEXT NOT NULL,
     "driverId" TEXT NOT NULL,
-    "from" TEXT NOT NULL UNIQUE,
-    "to" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
     "createdAt" TIMESTAMP NOT NULL DEFAULT NOW()
 );
 

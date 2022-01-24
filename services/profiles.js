@@ -76,6 +76,32 @@ module.exports = class Profile {
     }
   }
 
+  async getUsersTrips(res, data) {
+    if (
+      data.userId === undefined ||
+      data.userId === "" ||
+      data.userId === null
+    ) {
+      return util.sendJson(res, util.Error("userId is missing."), 400);
+    }
+
+    const sql = `SELECT * FROM trips WHERE "studentId"=$1 OR "driverId"=$2`;
+    try {
+      db.query(sql, [data.userId, data.userId], (err, results) => {
+        if (err) {
+          return util.sendJson(
+            res,
+            util.Error("Something went wrong fetching users: " + err),
+            400
+          );
+        }
+        return util.sendJson(res, results.rows, 200);
+      });
+    } catch (err) {
+      return util.sendJson(res, util.Error(err.message), 400);
+    }
+  }
+
   async editProfile(data, res) {
     if (Object.entries(data).length === 0 || data.role === "") {
       return util.sendJson(res, util.Error("A valid payload is required"), 400);

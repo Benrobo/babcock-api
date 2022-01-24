@@ -1,3 +1,5 @@
+-- Database
+
 CREATE DATABASE "babcock-uber";
 
 
@@ -18,6 +20,7 @@ CREATE TABLE "usersTable"(
     "createdAt" TEXT NOT NULL
 );
 
+-- trips table
 
 CREATE TABLE "trips"(
     id TEXT UNIQUE NOT NULL PRIMARY KEY,
@@ -26,42 +29,3 @@ CREATE TABLE "trips"(
     "type" TEXT NOT NULL,
     "createdAt" TIMESTAMP NOT NULL DEFAULT NOW()
 );
-
--- 
- 
-
-
--- product table
-
-CREATE TABLE "notification"(
-    id TEXT UNIQUE NOT NULL PRIMARY KEY,
-    "userId" TEXT NOT NULL,
-    "createdAt" TEXT NOT NULL
-);
-
--- Payment table
-
-CREATE TABLE payments(
-    id TEXT UNIQUE NOT NULL PRIMARY KEY,
-    "cName" TEXT NOT NULL,
-    "total" TEXT NOT NULL,
-    "paymentMethod" TEXT NOT NULL,
-    "orgId" TEXT NOT NULL,
-    "pHash" TEXT [] NOT NULL,
-    "orgHash" TEXT [] NOT NULL,
-    status TEXT,
-    "expiry" TEXT NOT NULL,
-    "pDate" TIMESTAMP NOT NULL DEFAULT NOW()
-);
-
-
-
-
-
-
-
-
-
-
-
-

@@ -454,3 +454,4 @@ class UserAuth {
 }
 
 module.exports = new UserAuth();
+
